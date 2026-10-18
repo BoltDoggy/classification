@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国民经济行业分类 · GB/T 4754—2017</title>
+<script src="data.js"></script>
+<style>
+:root {
+  --bg: #f4f6fa;
+  --card: #ffffff;
+  --border: #e3e8f0;
+  --text: #1f2937;
+  --text-2: #6b7280;
+  --text-3: #9ca3af;
+  --primary: #2563eb;
+  --primary-weak: #eff4ff;
+  --mark: #fde68a;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ---------- header ---------- */
+.hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+  color: #fff;
+  padding: 40px 24px 84px;
+}
+.hero-inner { max-width: 1280px; margin: 0 auto; }
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px;
+  font-size: 13px;
+  padding: 2px 12px;
+  letter-spacing: .5px;
+}
+.hero h1 { font-size: 30px; font-weight: 700; margin: 14px 0 6px; letter-spacing: 1px; }
+.hero .sub { font-size: 14px; opacity: .85; }
+.hero .sub span { margin-right: 18px; white-space: nowrap; display: inline-block; }
+
+/* ---------- stats ---------- */
+.stat-bar {
+  max-width: 1280px;
+  margin: -56px auto 0;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) ;
+  gap: 14px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  justify-content: center;
+}
+.stat-card .num { font-size: 28px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.stat-card .lab { font-size: 14px; color: var(--text-2); }
+.stat-card.total .num { color: #7c3aed; }
+
+/* ---------- layout ---------- */
+.wrap { max-width: 1280px; margin: 18px auto 60px; padding: 0 24px; }
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+  max-width: 520px;
+}
+.search-box .icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-3); font-size: 15px; pointer-events: none;
+}
+#search {
+  width: 100%;
+  padding: 10px 84px 10px 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: var(--card);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+#search:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+#search::placeholder { color: var(--text-3); }
+#matchInfo {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 12px; color: var(--text-3); white-space: nowrap;
+}
+#matchInfo b { color: var(--primary); }
+.btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-2);
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-weak); }
+
+.main { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 16px; align-items: start; }
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafbfd;
+}
+.panel-head .hint { color: var(--text-3); font-size: 12px; }
+#treeBox { max-height: calc(100vh - 240px); min-height: 420px; overflow: auto; padding: 8px 6px; }
+#detailBox { max-height: calc(100vh - 240px); overflow: auto; padding: 20px; }
+
+/* ---------- tree ---------- */
+.node { user-select: none; }
+.node-children { margin-left: 18px; border-left: 1px solid var(--border); }
+.node-children.hidden { display: none; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 2px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+.row:hover { background: #f3f6fc; }
+.row.selected { background: var(--primary-weak); box-shadow: inset 3px 0 0 var(--accent, var(--primary)); }
+.chevron {
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  font-size: 10px;
+  transition: transform .15s;
+  flex: none;
+  border-radius: 4px;
+}
+.chevron:hover { background: #e5ebf5; color: var(--text); }
+.chevron.open { transform: rotate(90deg); }
+.chevron.leaf { visibility: hidden; }
+.code-badge {
+  flex: none;
+  min-width: 38px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-variant-numeric: tabular-nums;
+}
+.lv1-badge { color: #fff; border-radius: 8px; padding: 2px 8px; }
+.lv2-badge { background: #eef2f9; color: #334155; }
+.lv3-badge { background: #f0f7f1; color: #2f6b3a; }
+.lv4-badge { background: #faf3ea; color: #8a5a19; }
+.node-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row.lv1 .node-name { font-weight: 600; }
+.row.lv2 .node-name { font-weight: 500; }
+.desc-count { font-size: 12px; color: var(--text-3); margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
+mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px; }
+.empty-tip { padding: 40px 20px; text-align: center; color: var(--text-3); font-size: 13px; }
+
+/* ---------- detail ---------- */
+.detail-code-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.detail-code {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 2px 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.level-tag {
+  font-size: 12px;
+  color: var(--text-2);
+  background: #f1f4f9;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.detail-name { font-size: 20px; font-weight: 700; margin-top: 12px; }
+.crumbs { font-size: 12.5px; color: var(--text-3); margin-top: 6px; line-height: 1.8; }
+.crumbs a { color: var(--text-2); text-decoration: none; cursor: pointer; }
+.crumbs a:hover { color: var(--primary); }
+.crumbs .sep { margin: 0 5px; color: #cbd5e1; }
+.section { margin-top: 18px; }
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-title::before { content: ""; width: 3px; height: 13px; background: var(--accent, var(--primary)); border-radius: 2px; }
+.desc-text { font-size: 14px; color: #374151; background: #fafbfd; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+.child-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.child-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .12s;
+  max-width: 100%;
+}
+.child-chip:hover { border-color: var(--accent, var(--primary)); color: var(--accent, var(--primary)); background: #fff; }
+.child-chip .cc { font-weight: 600; color: var(--accent, var(--primary)); font-variant-numeric: tabular-nums; flex: none; }
+.child-chip .cn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ref-row {
+  display: flex; gap: 10px; align-items: baseline;
+  font-size: 13.5px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+  flex-wrap: wrap;
+}
+.ref-row .rc { font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.ref-row .note {
+  margin-left: auto; font-size: 12px; color: #b45309;
+  background: #fef3c7; border-radius: 999px; padding: 1px 9px; flex: none;
+}
+.ref-row .note.new { color: #15803d; background: #dcfce7; }
+.ref-empty { font-size: 13px; color: var(--text-3); }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-cell { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
+.stat-cell .k { font-size: 12px; color: var(--text-3); }
+.stat-cell .v { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-cell .v small { font-size: 11.5px; color: var(--text-3); font-weight: 400; margin-left: 3px; }
+.delta-up { color: #16a34a; font-size: 11px; }
+.delta-down { color: #dc2626; font-size: 11px; }
+.delta-flat { color: var(--text-3); font-size: 11px; }
+
+/* overview (no selection) */
+.overview h2 { font-size: 18px; margin-bottom: 6px; }
+.overview p { font-size: 13.5px; color: var(--text-2); margin-bottom: 16px; }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.cat-tile {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; cursor: pointer; font-size: 13px;
+  transition: all .12s; background: #fff;
+}
+.cat-tile:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: var(--tile-c); }
+.cat-tile .badge {
+  width: 26px; height: 26px; border-radius: 8px; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; flex: none;
+}
+.cat-tile .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-tile .cnt { margin-left: auto; color: var(--text-3); font-size: 12px; flex: none; }
+
+footer {
+  text-align: center; color: var(--text-3); font-size: 12.5px;
+  padding: 10px 24px 40px;
+}
+footer a { color: var(--text-2); }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  #treeBox, #detailBox { max-height: none; }
+  .stat-bar { grid-template-columns: repeat(2, 1fr); margin-top: -48px; }
+  .hero { padding-bottom: 72px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">中华人民共和国国家标准 · GB/T 4754—2017</span>
+    <h1 id="heroTitle"></h1>
+    <div class="sub" id="heroSub"></div>
+  </div>
+</header>
+
+<div class="stat-bar" id="statBar"></div>
+
+<div class="wrap">
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="icon">&#128269;</span>
+      <input id="search" type="text" placeholder="搜索代码或名称,如 6511、软件、农业…" autocomplete="off">
+      <span id="matchInfo"></span>
+    </div>
+    <button class="btn" id="btnExpand">全部展开</button>
+    <button class="btn" id="btnCollapse">全部折叠</button>
+  </div>
+
+  <div class="main">
+    <section class="panel">
+      <div class="panel-head">
+        <span>行业分类目录</span>
+        <span class="hint">点击行查看详情 · 点击箭头展开/折叠</span>
+      </div>
+      <div id="treeBox"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><span id="detailHead">详情</span></div>
+      <div id="detailBox"></div>
+    </section>
+  </div>
+</div>
+
+<footer id="footer"></footer>
+
+<script>
+'use strict';
+/* ================= 数据准备 ================= */
+const LEVEL_NAME = {1: '门类', 2: '大类', 3: '中类', 4: '小类'};
+const tree = DATA.tree;
+const index = new Map();     // code -> {node, parent, men}
+const leafCount = new Map(); // code -> 小类后代数
+
+function hueOf(letter) { return (letter.charCodeAt(0) - 65) * 18; }
+function catColor(code) {
+  const men = index.get(code)?.men || code;
+  return `hsl(${hueOf(men)}, 62%, 46%)`;
+}
+
+(function buildIndex(nodes, parent, men) {
+  for (const n of nodes) {
+    const m = n.c.length === 1 ? n.c : men;
+    index.set(n.c, {node: n, parent, men: m});
+    buildIndex(n.ch || [], n.c, m);
+  }
+})(tree, '', '');
+
+(function countLeaves(nodes) {
+  let total = 0;
+  for (const n of nodes) {
+    const t = (n.ch || []).length ? countLeaves(n.ch) : 1;
+    leafCount.set(n.c, t);
+    total += t;
+  }
+  return total;
+})(tree);
+
+/* ================= 状态 ================= */
+const expanded = new Set();
+const DEFAULT_OPEN = new Set(tree.map(n => n.c)); // 默认展开门类
+let selected = null;
+let query = '';
+let matchSet = null;   // 搜索时命中的节点 code 集合
+
+function defaultExpand() {
+  expanded.clear();
+  DEFAULT_OPEN.forEach(c => expanded.add(c));
+}
+defaultExpand();
+
+/* ================= 工具 ================= */
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, ch => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function highlight(text) {
+  const safe = escapeHtml(text);
+  if (!query) return safe;
+  const q = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return safe.replace(new RegExp(q, 'g'), m => `<mark>${m}</mark>`);
+}
+function pathOf(code) {
+  const parts = [];
+  let cur = code;
+  while (cur && index.has(cur)) {
+    parts.unshift(index.get(cur));
+    cur = index.get(cur).parent;
+  }
+  return parts;
+}
+
+/* ================= 树渲染 ================= */
+const treeBox = document.getElementById('treeBox');
+
+function renderTree() {
+  treeBox.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  const build = (nodes, parentEl) => {
+    for (const n of nodes) {
+      if (matchSet && !matchSet.visible.has(n.c)) continue;
+      const kids = n.ch || [];
+      const hasKids = kids.length > 0;
+      const isOpen = hasKids && (matchSet ? matchSet.open.has(n.c) : expanded.has(n.c));
+
+      const nodeEl = document.createElement('div');
+      nodeEl.className = 'node';
+
+      const row = document.createElement('div');
+      row.className = `row lv${n.c.length === 1 ? 1 : n.c.length}`;
+      row.dataset.code = n.c;
+      row.style.setProperty('--accent', catColor(n.c));
+
+      const chev = document.createElement('span');
+      chev.className = 'chevron' + (isOpen ? ' open' : '') + (hasKids ? '' : ' leaf');
+      chev.textContent = '\u25B8';
+      if (hasKids) {
+        chev.addEventListener('click', e => {
+          e.stopPropagation();
+          if (matchSet) { // 搜索时点击箭头仍可手动调整
+            matchSet.open.has(n.c) ? matchSet.open.delete(n.c) : matchSet.open.add(n.c);
+          } else {
+            expanded.has(n.c) ? expanded.delete(n.c) : expanded.add(n.c);
+          }
+          renderTree();
+        });
+      }
+
+      const badge = document.createElement('span');
+      badge.className = 'code-badge ' + (n.c.length === 1 ? 'lv1-badge' : `lv${n.c.length}-badge`);
+      badge.innerHTML = highlight(n.c);
+      if (n.c.length === 1) badge.style.background = catColor(n.c);
+
+      const name = document.createElement('span');
+      name.className = 'node-name';
+      name.innerHTML = highlight(n.n);
+
+      row.append(chev, badge, name);
+
+      if (n.c.length <= 2 && leafCount.get(n.c) > 0) {
+        const cnt = document.createElement('span');
+        cnt.className = 'desc-count';
+        cnt.textContent = `${leafCount.get(n.c)} 个小类`;
+        row.appendChild(cnt);
+      }
+
+      row.addEventListener('click', () => select(n.c, {reveal: false}));
+      if (selected === n.c) row.classList.add('selected');
+
+      nodeEl.appendChild(row);
+
+      if (hasKids) {
+        const kidsEl = document.createElement('div');
+        kidsEl.className = 'node-children' + (isOpen ? '' : ' hidden');
+        build(kids, kidsEl);
+        nodeEl.appendChild(kidsEl);
+      }
+      parentEl.appendChild(nodeEl);
+    }
+  };
+  build(tree, frag);
+  if (!frag.childElementCount) {
+    const tip = document.createElement('div');
+    tip.className = 'empty-tip';
+    tip.textContent = '没有匹配的行业,试试其他关键词';
+    frag.appendChild(tip);
+  }
+  treeBox.appendChild(frag);
+}
+
+/* ================= 搜索 ================= */
+function computeMatches(q) {
+  const hits = new Set();
+  const visible = new Set();
+  const open = new Set();
+  const walk = n => {
+    let childHit = false;
+    for (const c of (n.ch || [])) childHit = walk(c) || childHit;
+    const self = n.c.includes(q) || n.n.includes(q);
+    if (self) hits.add(n.c);
+    if (self || childHit) visible.add(n.c);
+    if (childHit) open.add(n.c);
+    return self || childHit;
+  };
+  tree.forEach(walk);
+  return {hits, visible, open};
+}
+
+/* ================= 详情 ================= */
+const detailBox = document.getElementById('detailBox');
+const detailHead = document.getElementById('detailHead');
+
+function childChip(code, name) {
+  const a = document.createElement('span');
+  a.className = 'child-chip';
+  a.style.setProperty('--accent', catColor(code));
+  a.innerHTML = `<span class="cc">${escapeHtml(code)}</span><span class="cn">${escapeHtml(name)}</span>`;
+  a.addEventListener('click', () => select(code));
+  return a;
+}
+
+function renderOverview() {
+  detailHead.textContent = '总览';
+  const m = DATA.meta, c = m.counts;
+  detailBox.innerHTML = '';
+  const box = document.createElement('div');
+  box.className = 'overview';
+  box.innerHTML = `
+    <h2>关于本分类</h2>
+    <p>《国民经济行业分类》规定了全社会经济活动的分类与代码,适用于统计、计划、财政、税收、工商等宏观管理领域。
+    点击左侧目录或下方门类开始浏览。</p>
+    <div class="cat-grid"></div>`;
+  const grid = box.querySelector('.cat-grid');
+  for (const n of tree) {
+    const tile = document.createElement('div');
+    tile.className = 'cat-tile';
+    tile.style.setProperty('--tile-c', catColor(n.c));
+    tile.innerHTML = `<span class="badge" style="background:${catColor(n.c)}">${n.c}</span>
+      <span class="t" title="${escapeHtml(n.n)}">${escapeHtml(n.n)}</span>
+      <span class="cnt">${leafCount.get(n.c)}</span>`;
+    tile.addEventListener('click', () => select(n.c));
+    grid.appendChild(tile);
+  }
+  detailBox.appendChild(box);
+}
+
+function renderDetail(code) {
+  const entry = index.get(code);
+  if (!entry) return renderOverview();
+  const n = entry.node;
+  detailHead.textContent = `${LEVEL_NAME[n.c.length]} · ${n.c}`;
+  detailBox.innerHTML = '';
+  detailBox.style.setProperty('--accent', catColor(code));
+
+  const codeRow = document.createElement('div');
+  codeRow.className = 'detail-code-row';
+  const codeEl = document.createElement('span');
+  codeEl.className = 'detail-code';
+  codeEl.style.background = catColor(code);
+  codeEl.textContent = n.c;
+  const lv = document.createElement('span');
+  lv.className = 'level-tag';
+  lv.textContent = LEVEL_NAME[n.c.length];
+  codeRow.append(codeEl, lv);
+  detailBox.appendChild(codeRow);
+
+  const nm = document.createElement('div');
+  nm.className = 'detail-name';
+  nm.textContent = n.n;
+  detailBox.appendChild(nm);
+
+  const crumbs = document.createElement('div');
+  crumbs.className = 'crumbs';
+  const path = pathOf(code);
+  crumbs.innerHTML = path.map((p, i) =>
+    `<a data-code="${p.node.c}">${escapeHtml(p.node.n)}</a>` +
+    (i < path.length - 1 ? '<span class="sep">/</span>' : '')
+  ).join('');
+  crumbs.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => select(a.dataset.code)));
+  detailBox.appendChild(crumbs);
+
+  if (n.d) {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-title">说明</div>`;
+    const d = document.createElement('div');
+    d.className = 'desc-text';
+    d.textContent = n.d;
+    sec.appendChild(d);
+    detailBox.appendChild(sec);
+  }
+
+  // 门类统计(附录 A)
+  if (n.c.length === 1 && DATA.stats[code]) {
+    const s = DATA.stats[code];
+    const cell = (label, v, v11) => {
+      const diff = v - v11;
+      const delta = diff > 0 ? `<span class="delta-up">&#9650;+${diff}</span>`
+        : diff < 0 ? `<span class="delta-down">&#9660;${diff}</span>`
+        : `<span class="delta-flat">持平</span>`;
+      return `<div class="stat-cell"><div class="k">${label}</div>
+        <div class="v">${v}<small>/ 2011版 ${v11}</small> ${delta}</div></div>`;
+    };
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-title">与 2011 版数量对照</div>
+      <div class="stats-grid">
+        ${cell('大类', s.d, s.d11)}
+        ${cell('中类', s.z, s.z11)}
+        ${cell('小类', s.x, s.x11)}
+      </div>`;
+    detailBox.appendChild(sec);
+  }
+
+  if ((n.ch || []).length) {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-title">下级分类(${n.ch.length})</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'child-grid';
+    n.ch.forEach(c => grid.appendChild(childChip(c.c, c.n)));
+    sec.appendChild(grid);
+    detailBox.appendChild(sec);
+  }
+
+  // 2011 版对照(附录 B,小类级)
+  if (n.c.length === 4 && DATA.v2011[code]) {
+    const r = DATA.v2011[code];
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-title">GB/T 4754—2011 对照</div>`;
+    r.t.forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'ref-row';
+      if (t.c) {
+        row.innerHTML = `<span class="rc">${escapeHtml(t.c)}</span><span>${escapeHtml(t.n)}</span>`
+          + (t.note ? `<span class="note">${escapeHtml(t.note)}</span>` : '');
+      } else {
+        row.innerHTML = `<span>${escapeHtml(n.n)}</span><span class="note new">${escapeHtml(t.note || '新增')}</span>`;
+      }
+      sec.appendChild(row);
+    });
+    detailBox.appendChild(sec);
+  }
+
+  // ISIC Rev.4 对照(附录 C)
+  if (DATA.isic[code] && DATA.isic[code].length) {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-title">ISIC Rev.4 国际标准对照</div>`;
+    DATA.isic[code].forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'ref-row';
+      row.innerHTML = `<span class="rc">${escapeHtml(r.c)}</span><span>${escapeHtml(r.n)}</span>`;
+      sec.appendChild(row);
+    });
+    detailBox.appendChild(sec);
+  }
+}
+
+function reveal(code) {
+  const path = pathOf(code).map(p => p.node.c);
+  for (const c of path) expanded.add(c);
+}
+
+function select(code, opts = {}) {
+  selected = code;
+  if (opts.reveal !== false) reveal(code);
+  renderTree();
+  renderDetail(code);
+  history.replaceState(null, '', '#' + code);
+  const row = treeBox.querySelector(`.row[data-code="${code}"]`);
+  if (row) row.scrollIntoView({block: 'nearest'});
+}
+
+/* ================= 头部/统计/页脚 ================= */
+function renderHeader() {
+  const m = DATA.meta, c = m.counts;
+  document.getElementById('heroTitle').textContent = m.title;
+  document.getElementById('heroSub').innerHTML =
+    `<span>${m.standard} 代替 ${m.replaces}</span>` +
+    `<span>${m.issued} 发布</span><span>${m.effective} 实施</span>`;
+  document.getElementById('statBar').innerHTML = `
+    <div class="stat-card"><span class="num">${c.men}</span><span class="lab">门类</span></div>
+    <div class="stat-card"><span class="num">${c.da}</span><span class="lab">大类</span></div>
+    <div class="stat-card"><span class="num">${c.zhong}</span><span class="lab">中类</span></div>
+    <div class="stat-card"><span class="num">${c.xiao}</span><span class="lab">小类</span></div>`;
+  document.getElementById('footer').innerHTML =
+    `数据来源:国家标准《国民经济行业分类》${m.standard}(国家质量监督检验检疫总局、国家标准化管理委员会 ${m.issued} 发布)<br>
+    含附录 A 数量对照、附录 B 2011 版对照、附录 C ISIC Rev.4 对照 · 数据提取自官方 docx 文件`;
+}
+
+/* ================= 事件 ================= */
+const searchInput = document.getElementById('search');
+const matchInfo = document.getElementById('matchInfo');
+let debounceTimer = null;
+
+function applySearch() {
+  query = searchInput.value.trim();
+  if (!query) {
+    matchSet = null;
+    matchInfo.textContent = '';
+  } else {
+    matchSet = computeMatches(query);
+    matchInfo.innerHTML = matchSet.hits.size
+      ? `<b>${matchSet.hits.size}</b> 个匹配` : '无匹配';
+  }
+  renderTree();
+}
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(applySearch, 140);
+});
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && matchSet && matchSet.hits.size) {
+    select([...matchSet.hits][0]);
+  } else if (e.key === 'Escape') {
+    searchInput.value = '';
+    applySearch();
+  }
+});
+document.getElementById('btnExpand').addEventListener('click', () => {
+  index.forEach((_, code) => expanded.add(code));
+  if (matchSet) { searchInput.value = ''; applySearch(); }
+  renderTree();
+});
+document.getElementById('btnCollapse').addEventListener('click', () => {
+  defaultExpand();
+  if (matchSet) { searchInput.value = ''; applySearch(); }
+  renderTree();
+});
+window.addEventListener('hashchange', () => {
+  const code = decodeURIComponent(location.hash.slice(1));
+  if (index.has(code)) select(code);
+});
+
+/* ================= 启动 ================= */
+renderHeader();
+renderTree();
+const initial = decodeURIComponent(location.hash.slice(1));
+if (index.has(initial)) {
+  selected = initial;
+  reveal(initial);
+  renderTree();
+  renderDetail(initial);
+} else {
+  renderOverview();
+}
+</script>
+</body>
+</html>
